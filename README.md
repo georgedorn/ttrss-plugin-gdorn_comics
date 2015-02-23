@@ -1,6 +1,23 @@
 # ttrss-plugin-gdorn_comics
 Yet more ways of pulling comics, alt text and salient bits of blogs into Tiny Tiny RSS entries.  I got sick of trying to wrangle feedmod and feediron into doing what I wanted and then realized it's just easier to do it in code and skip the JSON config middleman entirely.
 
+## Features
+
+It's really just a quick and dirty content rewriting engine with code already written for about a dozen webcomics.  Examples:
+* Joy of Tech
+* Girls with Slingshots
+* CTRL+ALT+DEL (Sillies)
+* Three Panel Soul
+* Two Lumps
+* Timothy Winchester
+* Awkward Zombie
+* Scenes From A Multiverse
+* XKCD
+* Questionable Content
+* Least I Could Do
+
+You'll note several of these already have working RSS feeds with comics embedded.  I'm also working to standardize the display of alt/title tags (making the Android client easier to use) and adjust the layout of some that get squished or have excessive padding.
+
 ## Installation
 
 Like most plugins, it has to go in /plugins, and it has to have a specific dirname.  To get this:
