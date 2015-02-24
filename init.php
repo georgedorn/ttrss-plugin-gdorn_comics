@@ -38,6 +38,7 @@ class gdorn_comics extends Plugin {
 	}
 
 	function mangle_article($article) {
+		// Eat That Toast bog-standard example
 		if (strpos($article['link'], 'eatthattoast.com/comic/') !== FALSE) {
 			$article['content'] = preg_replace('#(/[0-9-]+)-150x150\.gif#', '$1.gif', $article['content']);
 			$article['content'] = preg_replace('#(width|height)="150"#', '', $article['content']);
@@ -66,6 +67,16 @@ class gdorn_comics extends Plugin {
 		elseif (strpos($article['link'], 'twolumps.net/d/') !== FALSE) {
 			$xpath = $this->get_xpath_dealie($article['link']);
 			$article['content'] = $this->get_img_tags($xpath, "//img[@class='ksc' and contains(@src, 'comics')]", $article);
+		}
+		// Breaking Cat News
+		elseif (strpos($article['link'], 'breakingcatnews.com/comic/') !== FALSE) {
+			$xpath = $this->get_xpath_dealie($article['link']);
+			$article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']/img", $article);
+		}
+		// Something Positive
+		elseif (strpos($article['link'], 'somethingpositive.net') !== FALSE) {
+			$xpath = $this->get_xpath_dealie($article['link']);
+			$article['content'] = $this->get_img_tags($xpath, "//img[starts-with(@src, 'sp') and contains(@src, 'png')]", $article);
 		}
 		// Timothy Winchester (People I Know)
 		elseif (strpos($article['link'], 'www.timothywinchester.com/2') !== FALSE) {
@@ -134,9 +145,9 @@ class gdorn_comics extends Plugin {
 			$new_src = $this->rel2abs($orig_src, $article['link']);
 			$entry->setAttribute('src', $new_src);
 			$result_html .= $entry->ownerDocument->saveXML($entry);
-			$alt_text = $entry->getAttribute('alt');
+			$alt_text = trim($entry->getAttribute('alt'));
 			if (!$alt_text){
-				$alt_text = $entry->getAttribute('title');
+				$alt_text = trim($entry->getAttribute('title'));
 			}
 			if ($alt_text && $alt_text != $article['title']){
 				$result_html .= "<br><i>Alt: $alt_text</i></br>";
