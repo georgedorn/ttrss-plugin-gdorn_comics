@@ -44,7 +44,7 @@ class gdorn_comics extends Plugin {
 			$article['content'] = preg_replace('#(width|height)="150"#', '', $article['content']);
 		}
 		// Joy of Tech
-		elseif (strpos($article['link'], 'http://www.geekculture.com/joyoftech/') !== FALSE) {
+		elseif (strpos($article['link'], 'www.geekculture.com/joyoftech/') !== FALSE) {
 			$xpath = $this->get_xpath_dealie($article['link']);
 			$article['content'] = $this->get_img_tags($xpath, '//p[@class="Maintext"]//img[contains(@src, "joyimages")]', $article);
 		}
@@ -103,7 +103,12 @@ class gdorn_comics extends Plugin {
 			$xpath = $this->get_xpath_dealie($article['link']);
 			$article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
 		}
-		// XKCD (alt tags we don't need to call out for)
+                // Dead Philosophers
+                elseif (strpos($article['link'], 'dead-philosophers.com/?p') !== FALSE) {
+                        $xpath = $this->get_xpath_dealie($article['link']);
+                        $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic-1']//img", $article);
+                }		
+                // XKCD (alt tags we don't need to call out for)
 		elseif (strpos($article['content'], 'imgs.xkcd.com/comics/') !== FALSE) {
 			$doc = new DOMDocument();
 			$doc->loadHTML($article['content']);
