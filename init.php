@@ -48,6 +48,11 @@ class gdorn_comics extends Plugin {
 			$xpath = $this->get_xpath_dealie($article['link']);
 			$article['content'] = $this->get_img_tags($xpath, '//p[@class="Maintext"]//img[contains(@src, "joyimages")]', $article);
 		}
+		// Order of the Stick
+//		elseif (strpos(strtolower($article['link']), 'giantitp.com/comics/') !== FALSE) {
+//			$xpath = $this->get_xpath_dealie($article['link']);
+//			$article['content'] = $this->get_img_tags($xpath, '//td/img[contains(@src, "/comics/images/")]', $article);
+//		}
 		// Girls with Slingshots
 		elseif (strpos($article['link'], 'girlswithslingshots.com/comic/') !== FALSE) {
 			$xpath = $this->get_xpath_dealie($article['link']);
@@ -55,6 +60,11 @@ class gdorn_comics extends Plugin {
 		}
 		// CTRL+ALT+DEL Sillies
 		elseif (strpos($article['link'], 'cad-comic.com/sillies/') !== FALSE) {
+			$xpath = $this->get_xpath_dealie($article['link']);
+			$article['content'] = $this->get_img_tags($xpath, "//div[@id='content']/img", $article);
+		}
+		// CTRL+ALT+DEL 
+		elseif (strpos($article['link'], 'cad-comic.com/cad/') !== FALSE) {
 			$xpath = $this->get_xpath_dealie($article['link']);
 			$article['content'] = $this->get_img_tags($xpath, "//div[@id='content']/img", $article);
 		}
@@ -98,6 +108,11 @@ class gdorn_comics extends Plugin {
 				$article['content'] .= "<p><i>" . $entry->textContent . "</i></p>";
 			}
 		}
+                // Camp Weedonwantcha
+                elseif (strpos($article['link'], 'campcomic.com/comic/') !== FALSE) {
+                        $xpath = $this->get_xpath_dealie($article['link']);
+                        $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
+                }
 		// Scenes From A Multiverse (to get alt tags)
 		elseif (strpos($article['link'], 'amultiverse.com/comic/') !== FALSE) {
 			$xpath = $this->get_xpath_dealie($article['link']);
@@ -107,7 +122,17 @@ class gdorn_comics extends Plugin {
                 elseif (strpos($article['link'], 'dead-philosophers.com/?p') !== FALSE) {
                         $xpath = $this->get_xpath_dealie($article['link']);
                         $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic-1']//img", $article);
-                }		
+                }
+                // Dinosaur Comics Cleanup
+		elseif (strpos($article['link'], 'qwantz.com/index.php?comic') !== FALSE) {
+			$xpath = $this->get_xpath_dealie($article['link']);
+			$article['content'] = $this->get_img_tags($xpath, "//img[@class='comic']", $article);
+                        //also get the blog
+			$entries = $xpath->query("//span[@class='rss-content']");
+                        foreach ($entries as $entry){
+				$article['content'] .= "<p>" . $entry->ownerDocument->saveXML($entry) . "</p>";
+			}
+		}
                 // XKCD (alt tags we don't need to call out for)
 		elseif (strpos($article['content'], 'imgs.xkcd.com/comics/') !== FALSE) {
 			$doc = new DOMDocument();
@@ -117,6 +142,32 @@ class gdorn_comics extends Plugin {
 			foreach($imgs as $img){
 				$article['content'] .= "<br><i>Alt: " . $img->getAttribute('title') . "</i>";
 			}
+		}
+                // Softer World (alt tags we don't need to call out for)
+		elseif (strpos($article['content'], 'www.asofterworld.com/index.php?id') !== FALSE) {
+			$doc = new DOMDocument();
+			$doc->loadHTML($article['content']);
+			$xpath = new DOMXpath($doc);
+			$imgs = $xpath->query('//img'); //doesn't get simpler than this
+			foreach($imgs as $img){
+                                if ($img->getAttribute('title')) {
+    					$article['content'] .= "<br><i>Alt: " . $img->getAttribute('title') . "</i>";
+				}
+			}
+		}
+                // Invisible Bread (make the bread visible)
+		elseif (strpos($article['content'], 'invisiblebread.com/2') !== FALSE) {
+			$doc = new DOMDocument();
+			$doc->loadHTML($article['content']);
+			$xpath = new DOMXpath($doc);
+                        $bread = $xpath->query("//a[contains(@href, 'bonus-panel')]")->item(0);
+                        $bread_page_url = $bread->getAttribute('href');
+                        $xpath = $this->get_xpath_dealie($bread_page_url);
+			$extraimage = $xpath->query("//img[@class='extrapanelimage']")->item(0);
+                        $new_element = $doc->createElement("img");
+			$new_element->setAttribute('src', $extraimage->getAttribute('src'));
+                        $bread->parentNode->replaceChild($new_element, $bread);
+			$article['content'] = $doc->saveXML();
 		}
 		// Questionable Content (cleanup)
 		elseif (strpos($article['link'], 'questionablecontent') !== FALSE) {
