@@ -100,6 +100,11 @@ class gdorn_comics extends Plugin {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//img[starts-with(@src, 'sp') and contains(@src, 'png')]", $article);
         }
+        // Gunnerkrigg Court
+            elseif (strpos($article['link'], 'gunnerkrigg.com/?p') !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, "//img[starts-with(@src, '/comics/') and @class='comic_image']", $article);
+        }
         // Timothy Winchester (People I Know)
             elseif (strpos($article['link'], 'www.timothywinchester.com/2') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
@@ -157,25 +162,11 @@ class gdorn_comics extends Plugin {
         }
         // XKCD (alt tags we don't need to call out for)
             elseif (strpos($article['content'], 'imgs.xkcd.com/comics/') !== FALSE) {
-            $doc = new DOMDocument();
-            $doc->loadHTML($article['content']);
-            $xpath = new DOMXpath($doc);
-            $imgs = $xpath->query('//img'); //doesn't get simpler than this
-            foreach ($imgs as $img) {
-                $article['content'] .= "<br><i>Alt: " . $img->getAttribute('title') . "</i>";
-            }
+		//noop
         }
         // Wondermark (alt tag already present)
             elseif (strpos($article['content'], 'wondermark.com/c') !== FALSE) {
-            $doc = new DOMDocument();
-            $doc->loadHTML($article['content']);
-            $xpath = new DOMXpath($doc);
-            $imgs = $xpath->query('//img'); //doesn't get simpler than this
-            foreach ($imgs as $img) {
-                if ($img->getAttribute('title')) {
-                    $article['content'] .= "<br><i>Alt: " . $img->getAttribute('title') . "</i>";
-                }
-            }
+               //noop
         }
         // Invisible Bread (make the bread visible)
             elseif (strpos($article['content'], 'invisiblebread.com/2') !== FALSE) {
