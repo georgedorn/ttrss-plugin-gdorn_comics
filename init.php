@@ -50,12 +50,20 @@ class gdorn_comics extends Plugin {
         if (strpos($article["link"], "penny-arcade.com") !== FALSE && strpos($article["title"], "Comic:") !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, '(//div[@id="comicFrame"])', $article);
-        } elseif (strpos($article["link"], "explosm.net/comics") !== FALSE) {
+        }
+        // The Trenches
+        elseif (strpos($article["link"], "trenchescomic.com/comic/post/") !== FALSE &&
+        		strpos($article["title"], "Comic:") !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, '(//div[@id="comic"]//img)', $article);
+        }
+        // Cyanide & Happiness
+        elseif (strpos($article["link"], "explosm.net/comics") !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, '(//img[@id="main-comic"])', $article);
         }
         // Joy of Tech
-            elseif (strpos($article['link'], 'www.geekculture.com/joyoftech/') !== FALSE) {
+        elseif (strpos($article['link'], 'www.geekculture.com/joyoftech/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, '//p[@class="Maintext"]//img[contains(@src, "joyimages")]', $article);
         } /* OotS uses some kind of referer check which prevents fetch_file_contents() from retrieving the image.
@@ -66,54 +74,54 @@ class gdorn_comics extends Plugin {
         }
         */
         // Girls with Slingshots
-            elseif (strpos($article['link'], 'girlswithslingshots.com/comic/') !== FALSE) {
+        elseif (strpos($article['link'], 'girlswithslingshots.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comicbody']//img", $article);
         }
         // CTRL+ALT+DEL Sillies
-            elseif (strpos($article['link'], 'cad-comic.com/sillies/') !== FALSE) {
+        elseif (strpos($article['link'], 'cad-comic.com/sillies/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='content']/img", $article);
         }
         // CTRL+ALT+DEL
-            elseif (strpos($article['link'], 'cad-comic.com/cad/') !== FALSE) {
+        elseif (strpos($article['link'], 'cad-comic.com/cad/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='content']/img", $article);
         }
         // Three Panel Soul
-            elseif (strpos($article['link'], 'threepanelsoul.com/2') !== FALSE) {
+        elseif (strpos($article['link'], 'threepanelsoul.com/2') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']/img", $article);
         }
         // Two Lumps
-            elseif (strpos($article['link'], 'twolumps.net/d/') !== FALSE) {
+        elseif (strpos($article['link'], 'twolumps.net/d/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//img[@class='ksc' and contains(@src, 'comics')]", $article);
         }
         // Breaking Cat News
-            elseif (strpos($article['link'], 'breakingcatnews.com/comic/') !== FALSE) {
+        elseif (strpos($article['link'], 'breakingcatnews.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']/img", $article);
         }
         // Something Positive
-            elseif (strpos($article['link'], 'somethingpositive.net') !== FALSE) {
+        elseif (strpos($article['link'], 'somethingpositive.net') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//img[starts-with(@src, 'sp') and contains(@src, 'png')]", $article);
         }
         // Gunnerkrigg Court
-            elseif (strpos($article['link'], 'gunnerkrigg.com/?p') !== FALSE) {
+        elseif (strpos($article['link'], 'gunnerkrigg.com/?p') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//img[starts-with(@src, '/comics/') and @class='comic_image']", $article);
         }
         // Timothy Winchester (People I Know)
-            elseif (strpos($article['link'], 'www.timothywinchester.com/2') !== FALSE) {
+        elseif (strpos($article['link'], 'www.timothywinchester.com/2') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $orig_content = strip_tags($article['content']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@class='singleImage']/img[@class='magicfields']", $article);
             $article['content'] .= "<br>$orig_content</br>";
         }
         // Awkward Zombie
-            elseif (strpos($article['link'], 'awkwardzombie.com/index.php?comic') !== FALSE) {
+        elseif (strpos($article['link'], 'awkwardzombie.com/index.php?comic') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $orig_content = strip_tags($article['content']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']/img", $article);
@@ -126,32 +134,32 @@ class gdorn_comics extends Plugin {
             }
         }
         // Camp Weedonwantcha
-            elseif (strpos($article['link'], 'campcomic.com/comic/') !== FALSE) {
+        elseif (strpos($article['link'], 'campcomic.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
         }
         // Poly In Pictures
-            elseif (strpos($article['link'], 'polyinpictures.com/comic/') !== FALSE) {
+        elseif (strpos($article['link'], 'polyinpictures.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
         }
         // Dilbert
-            elseif (strpos($article['link'], 'dilbert.com/strip/') !== FALSE) {
+        elseif (strpos($article['link'], 'dilbert.com/strip/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@class='img-comic-container']//img", $article);
         }
         // Scenes From A Multiverse (to get alt tags)
-            elseif (strpos($article['link'], 'amultiverse.com/comic/') !== FALSE) {
+        elseif (strpos($article['link'], 'amultiverse.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
         }
         // Dead Philosophers
-            elseif (strpos($article['link'], 'dead-philosophers.com/?p') !== FALSE) {
+        elseif (strpos($article['link'], 'dead-philosophers.com/?p') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic-1']//img", $article);
         }
         // Dinosaur Comics Cleanup
-            elseif (strpos($article['link'], 'qwantz.com/index.php?comic') !== FALSE) {
+        elseif (strpos($article['link'], 'qwantz.com/index.php?comic') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//img[@class='comic']", $article);
             //also get the blog
@@ -161,15 +169,15 @@ class gdorn_comics extends Plugin {
             }
         }
         // XKCD (alt tags we don't need to call out for)
-            elseif (strpos($article['content'], 'imgs.xkcd.com/comics/') !== FALSE) {
-		//noop
+        elseif (strpos($article['content'], 'imgs.xkcd.com/comics/') !== FALSE) {
+            //noop
         }
         // Wondermark (alt tag already present)
-            elseif (strpos($article['content'], 'wondermark.com/c') !== FALSE) {
+        elseif (strpos($article['content'], 'wondermark.com/c') !== FALSE) {
                //noop
         }
         // Invisible Bread (make the bread visible)
-            elseif (strpos($article['content'], 'invisiblebread.com/2') !== FALSE) {
+        elseif (strpos($article['content'], 'invisiblebread.com/2') !== FALSE) {
             $doc = new DOMDocument();
             $doc->loadHTML($article['content']);
             $xpath = new DOMXpath($doc);
@@ -183,14 +191,14 @@ class gdorn_comics extends Plugin {
             $article['content'] = $doc->saveXML();
         }
         // Questionable Content (cleanup)
-            elseif (strpos($article['link'], 'questionablecontent') !== FALSE) {
+        elseif (strpos($article['link'], 'questionablecontent') !== FALSE) {
             // only keep everything starting at the first <img>
             if (preg_match("@.*(<img.*)@", $article['content'], $matches)) {
                 $article['content'] = $matches[1];
             }
         }
         // Least I Could Do (wtf image size?)
-            elseif (strpos($article['link'], 'leasticoulddo.com/comic') !== FALSE) {
+        elseif (strpos($article['link'], 'leasticoulddo.com/comic') !== FALSE) {
             // only keep everything starting at the first <img>
             if (preg_match("@.*(<img.*?>)@", $article['content'], $matches)) {
                 $img = $matches[1];
@@ -199,7 +207,7 @@ class gdorn_comics extends Plugin {
                 $article['content'] = $img;
             }
         } //Sites that provide images and just need alt tags textified.
-            elseif (strpos($article['content'], 'www.asofterworld.com/index.php?id') !== FALSE || strpos($article['content'], 'thedoghousediaries.com/dhdcomics/') !== FALSE) {
+        elseif (strpos($article['content'], 'www.asofterworld.com/index.php?id') !== FALSE || strpos($article['content'], 'thedoghousediaries.com/dhdcomics/') !== FALSE) {
             //no-op
         }
         //No matches
