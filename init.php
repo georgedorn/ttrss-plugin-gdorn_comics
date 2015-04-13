@@ -148,6 +148,17 @@ class gdorn_comics extends Plugin {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@class='img-comic-container']//img", $article);
         }
+        // Doghouse Diaries, which has broken alt tags in feedburner (if there are quotes)
+        elseif (strpos($article['content'], 'thedoghousediaries.com/dhdcomics/') !== FALSE){
+						$xpath = $this->get_xpath_dealie($article['link']);
+						$article['content'] = $this->get_img_tags($xpath, "//div[@id='imgdiv']//img", $article);
+						//also get blog
+            $entries = $xpath->query("//div[@id='signoff-wrapper']");
+            foreach ($entries as $entry) {
+                $article['content'] .= "<p><i>" . $entry->textContent . "</i></p>";
+            }
+
+        }
         // Scenes From A Multiverse (to get alt tags)
         elseif (strpos($article['link'], 'amultiverse.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
@@ -206,8 +217,9 @@ class gdorn_comics extends Plugin {
                 $img = preg_replace("@height=\"\d+\"@", "", $img);
                 $article['content'] = $img;
             }
-        } //Sites that provide images and just need alt tags textified.
-        elseif (strpos($article['content'], 'www.asofterworld.com/index.php?id') !== FALSE || strpos($article['content'], 'thedoghousediaries.com/dhdcomics/') !== FALSE) {
+        }
+        //Sites that provide images and just need alt tags textified.
+        elseif (strpos($article['content'], 'www.asofterworld.com/index.php?id') !== FALSE) {
             //no-op
         }
         //No matches
@@ -279,6 +291,7 @@ class gdorn_comics extends Plugin {
         foreach ($entries as $entry) {
             $orig_src = $entry->getAttribute('src');
             $new_src = $this->rel2abs($orig_src, $article['link']);
+ 						$article['debugging'][] = "rel2abs turned ($orig_src) into ($new_src)";
             $entry->setAttribute('src', $new_src);
             $result_html .= $entry->ownerDocument->saveXML($entry);
         }
@@ -308,6 +321,7 @@ class gdorn_comics extends Plugin {
     }
 
     function rel2abs($rel, $base) {
+    		$rel = trim($rel);
         if (parse_url($rel, PHP_URL_SCHEME) != '' || substr($rel, 0, 2) == '//') {
             return $rel;
         }
