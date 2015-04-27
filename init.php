@@ -197,6 +197,19 @@ class gdorn_comics extends Plugin {
                 $article['content'] .= "<p>" . $entry->ownerDocument->saveXML($entry) . "</p>";
             }
         }
+        // VG Cats
+        elseif (strpos($article["content"], "//www.vgcats.com/comics/?strip_id=") !== FALSE) {
+						// slightly complicated; the link is to tumblr, but there's a url in the post that we want
+						$doc = new DOMDocument();
+						$doc->loadHTML($article['content']);
+						$url_xpath = new DOMXpath($doc);
+						$vgcats_url_node = $url_xpath->query("//a[contains(@href, 'strip_id')]")->item(0);
+						$vgcats_url = $vgcats_url_node->getAttribute('href');
+						$article['debug'][] = "URL: $vgcats_url";
+						$xpath = $this->get_xpath_dealie($vgcats_url);
+            $article['content'] = $this->get_img_tags($xpath, "//div//img[contains(@src, 'images') and contains(@src, 'jpg')]", $article, "http://vgcats.com/comics/");
+        }
+
         // Invisible Bread (make the bread visible)
         elseif (strpos($article['content'], 'invisiblebread.com/2') !== FALSE) {
             $doc = new DOMDocument();
@@ -239,8 +252,8 @@ class gdorn_comics extends Plugin {
 
         $article = $this->alt_textify($article);
 
-        if (GDORN_DEBUG && $article['debugging']) {
-            foreach ($article['debugging'] as $msg) {
+        if (GDORN_DEBUG && $article['debug']) {
+            foreach ($article['debug'] as $msg) {
                 $article['content'] .= "<br><small>" . $msg . "</small>";
             }
         }
@@ -263,21 +276,21 @@ class gdorn_comics extends Plugin {
         $imgs = $xpath->query('//img');
         foreach ($imgs as $img) {
             $alt_text = trim($img->getAttribute('alt'));
-            $article['debugging'][] = "Got ($alt_text) from alt tag.";
+            $article['debug'][] = "Got ($alt_text) from alt tag.";
             if (!$alt_text || strpos($article['title'], $alt_text) !== False) {
                 $alt_text = trim($img->getAttribute('title'));
-                $article['debugging'][] = "Got ($alt_text) from title tag.";
+                $article['debug'][] = "Got ($alt_text) from title tag.";
 
             }
             if (!$alt_text) {
-                $article['debugging'][] = "No alt text for img " . $img->getAttribute('src');
+                $article['debug'][] = "No alt text for img " . $img->getAttribute('src');
                 continue;
             }
             if ($alt_text == $article['title'] || strpos($article['title'], $alt_text) !== False) {
-                $article['debugging'][] = "($alt_text) same as article title.";
+                $article['debug'][] = "($alt_text) same as article title.";
                 continue;
             }
-            $article['debugging'][] = "Before: " . htmlspecialchars($article['content']);
+            $article['debug'][] = "Before: " . htmlspecialchars($article['content']);
             $new_element = $doc->createElement("div");
             $new_element->appendChild($img->cloneNode());
             $para_element = $doc->createElement("p");
@@ -289,19 +302,22 @@ class gdorn_comics extends Plugin {
         }
 
         $article['content'] = $doc->saveHTML();
-        $article['debugging'][] = "After: " . htmlspecialchars($article['content']);
+        $article['debug'][] = "After: " . htmlspecialchars($article['content']);
 
         return $article;
     }
 
 
-    function get_img_tags($xpath, $query, $article) {
+    function get_img_tags($xpath, $query, $article, $base_url=NULL) {
+        if (!$base_url){
+        		$base_url = $article['link'];
+        }
         $entries = $xpath->query($query);
         $result_html = '';
         foreach ($entries as $entry) {
             $orig_src = $entry->getAttribute('src');
-            $new_src = $this->rel2abs($orig_src, $article['link']);
- 						$article['debugging'][] = "rel2abs turned ($orig_src) into ($new_src)";
+            $new_src = $this->rel2abs($orig_src, $base_url);
+ 						$article['debug'][] = "rel2abs turned ($orig_src) into ($new_src)";
             $entry->setAttribute('src', $new_src);
             $result_html .= $entry->ownerDocument->saveXML($entry);
         }
