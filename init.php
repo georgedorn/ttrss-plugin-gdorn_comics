@@ -138,6 +138,11 @@ class gdorn_comics extends Plugin {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
         }
+        // The Oatmeal
+        elseif (strpos($article['link'], '//theoatmeal.com/comics/') !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
+        }
         // Poly In Pictures
         elseif (strpos($article['link'], 'polyinpictures.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
@@ -184,8 +189,13 @@ class gdorn_comics extends Plugin {
             //noop
         }
         // Wondermark (alt tag already present)
-        elseif (strpos($article['content'], 'wondermark.com/c') !== FALSE) {
-               //noop
+        elseif (strpos($article['link'], 'wondermark.com/c') !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
+            $entries = $xpath->query("//div[@id='comic-notes']");
+            foreach ($entries as $entry) {
+                $article['content'] .= "<p>" . $entry->ownerDocument->saveXML($entry) . "</p>";
+            }
         }
         // Invisible Bread (make the bread visible)
         elseif (strpos($article['content'], 'invisiblebread.com/2') !== FALSE) {
