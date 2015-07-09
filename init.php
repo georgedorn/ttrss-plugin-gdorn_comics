@@ -164,6 +164,11 @@ class gdorn_comics extends Plugin {
             }
 
         }
+        // Pain Train (to get alt tag)
+        elseif (strpos($article['link'], 'paintraincomic.com/comic/') !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
+        }
         // Scenes From A Multiverse (to get alt tags)
         elseif (strpos($article['link'], 'amultiverse.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
@@ -230,6 +235,11 @@ class gdorn_comics extends Plugin {
             if (preg_match("@.*(<img.*)@", $article['content'], $matches)) {
                 $article['content'] = $matches[1];
             }
+        }
+        // Alice Grove (get bigger image)
+        elseif (strpos($article['link'], 'alicegrove.com') !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, "//figure[@class='photo-hires-item']//img", $article);
         }
         // Least I Could Do (wtf image size?)
         elseif (strpos($article['link'], 'leasticoulddo.com/comic') !== FALSE) {
