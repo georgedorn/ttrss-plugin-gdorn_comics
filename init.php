@@ -66,11 +66,13 @@ class gdorn_comics extends Plugin {
         elseif (strpos($article['link'], 'www.geekculture.com/joyoftech/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, '//p[@class="Maintext"]//img[contains(@src, "joyimages")]', $article);
-        } /* OotS uses some kind of referer check which prevents fetch_file_contents() from retrieving the image.
+        }
+        /* OotS uses some kind of referer check which prevents the browser from getting the image.
+         * Possible fix would be to download the image via fetch_file_contents and mirror it.
         // Order of the Stick
         elseif (strpos(strtolower($article['link']), 'giantitp.com/comics/') !== FALSE) {
-        $xpath = $this->get_xpath_dealie($article['link']);
-        $article['content'] = $this->get_img_tags($xpath, '//td/img[contains(@src, "/comics/images/")]', $article);
+        	$xpath = $this->get_xpath_dealie($article['link']);
+        	$article['content'] = $this->get_img_tags($xpath, '//td/img[contains(@src, "/comics/images/")]', $article);
         }
         */
         // Girls with Slingshots
@@ -214,20 +216,21 @@ class gdorn_comics extends Plugin {
 						$xpath = $this->get_xpath_dealie($vgcats_url);
             $article['content'] = $this->get_img_tags($xpath, "//div//img[contains(@src, 'images') and contains(@src, 'jpg')]", $article, "http://vgcats.com/comics/");
         }
-
         // Invisible Bread (make the bread visible)
         elseif (strpos($article['content'], 'invisiblebread.com/2') !== FALSE) {
             $doc = new DOMDocument();
             $doc->loadHTML($article['content']);
             $xpath = new DOMXpath($doc);
             $bread = $xpath->query("//a[contains(@href, 'bonus-panel')]")->item(0);
-            $bread_page_url = $bread->getAttribute('href');
-            $xpath = $this->get_xpath_dealie($bread_page_url);
-            $extraimage = $xpath->query("//img[@class='extrapanelimage']")->item(0);
-            $new_element = $doc->createElement("img");
-            $new_element->setAttribute('src', $extraimage->getAttribute('src'));
-            $bread->parentNode->replaceChild($new_element, $bread);
-            $article['content'] = $doc->saveXML();
+            if ($bread) {
+                $bread_page_url = $bread->getAttribute('href');
+                $xpath = $this->get_xpath_dealie($bread_page_url);
+                $extraimage = $xpath->query("//img[@class='extrapanelimage']")->item(0);
+                $new_element = $doc->createElement("img");
+                $new_element->setAttribute('src', $extraimage->getAttribute('src'));
+                $bread->parentNode->replaceChild($new_element, $bread);
+                $article['content'] = $doc->saveXML();
+            }
         }
         // Questionable Content (cleanup)
         elseif (strpos($article['link'], 'questionablecontent') !== FALSE) {
@@ -349,6 +352,10 @@ class gdorn_comics extends Plugin {
          */
         global $fetch_last_content_type;
         $html = fetch_file_contents($link);
+        if (!$html){
+            global $fetch_last_error_code;
+            $html = $fetch_last_error_code;
+        }
         $content_type = $fetch_last_content_type;
         return array(
             $html,
