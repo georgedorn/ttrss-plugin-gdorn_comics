@@ -78,7 +78,8 @@ class gdorn_comics extends Plugin {
         // Girls with Slingshots
         elseif (strpos($article['link'], 'girlswithslingshots.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
-            $article['content'] = $this->get_img_tags($xpath, "//div[@id='comicbody']//img", $article);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@id='cc-comicbody']//img", $article);
+
         }
         // CTRL+ALT+DEL Sillies
         elseif (strpos($article['link'], 'cad-comic.com/sillies/') !== FALSE) {
@@ -171,6 +172,11 @@ class gdorn_comics extends Plugin {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']//img", $article);
         }
+        // Achewood (alt tag)
+        elseif (strpos($article['link'], 'http://www.achewood.com/index.php?date=') !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, "//p[@id='comic_body']//img", $article);
+        }
         // Scenes From A Multiverse (to get alt tags)
         elseif (strpos($article['link'], 'amultiverse.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
@@ -226,10 +232,12 @@ class gdorn_comics extends Plugin {
                 $bread_page_url = $bread->getAttribute('href');
                 $xpath = $this->get_xpath_dealie($bread_page_url);
                 $extraimage = $xpath->query("//img[@class='extrapanelimage']")->item(0);
-                $new_element = $doc->createElement("img");
-                $new_element->setAttribute('src', $extraimage->getAttribute('src'));
-                $bread->parentNode->replaceChild($new_element, $bread);
-                $article['content'] = $doc->saveXML();
+                if ($extraimage) {
+                    $new_element = $doc->createElement("img");
+                    $new_element->setAttribute('src', $extraimage->getAttribute('src'));
+                    $bread->parentNode->replaceChild($new_element, $bread);
+                    $article['content'] = $doc->saveXML();
+                }
             }
         }
         // Questionable Content (cleanup)
