@@ -175,7 +175,7 @@ class gdorn_comics extends Plugin {
         // Achewood (alt tag)
         elseif (strpos($article['link'], 'http://www.achewood.com/index.php?date=') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
-            $article['content'] = $this->get_img_tags($xpath, "//p[@id='comic_body']//img", $article);
+            $article['content'] = $this->get_img_tags($xpath, "//p[@id='comic_body']//a//img", $article);
         }
         // Scenes From A Multiverse (to get alt tags)
         elseif (strpos($article['link'], 'amultiverse.com/comic/') !== FALSE) {
@@ -254,13 +254,8 @@ class gdorn_comics extends Plugin {
         }
         // Least I Could Do (wtf image size?)
         elseif (strpos($article['link'], 'leasticoulddo.com/comic') !== FALSE) {
-            // only keep everything starting at the first <img>
-            if (preg_match("@.*(<img.*?>)@", $article['content'], $matches)) {
-                $img = $matches[1];
-                $img = preg_replace("@width=\"\d+\"@", "", $img);
-                $img = preg_replace("@height=\"\d+\"@", "", $img);
-                $article['content'] = $img;
-            }
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic-img']//img", $article);
         }
         //Sites that provide images and just need alt tags textified.
         elseif (strpos($article['content'], 'www.asofterworld.com/index.php?id') !== FALSE) {
@@ -297,28 +292,50 @@ class gdorn_comics extends Plugin {
         $imgs = $xpath->query('//img');
         foreach ($imgs as $img) {
             $alt_text = trim($img->getAttribute('alt'));
-            $article['debug'][] = "Got ($alt_text) from alt tag.";
-            if (!$alt_text || strpos($article['title'], $alt_text) !== False) {
-                $alt_text = trim($img->getAttribute('title'));
-                $article['debug'][] = "Got ($alt_text) from title tag.";
-
+            if ($alt_text == $article['title'] || strpos($article['title'], $alt_text) !== False) {
+								$alt_text = false;
             }
-            if (!$alt_text) {
+            $article['debug'][] = "Got ($alt_text) from alt tag.";
+            $title_text = trim($img->getAttribute('title'));
+            if ($title_text == $article['title'] || strpos($article['title'], $title_text) !== False) {
+								$title_text = false;
+            }
+	          $article['debug'][] = "Got ($alt_text) from title tag.";
+            if (!$alt_text && !$title_text) {
                 $article['debug'][] = "No alt text for img " . $img->getAttribute('src');
                 continue;
             }
-            if ($alt_text == $article['title'] || strpos($article['title'], $alt_text) !== False) {
-                $article['debug'][] = "($alt_text) same as article title.";
-                continue;
-            }
+
             $article['debug'][] = "Before: " . htmlspecialchars($article['content']);
             $new_element = $doc->createElement("div");
             $new_element->appendChild($img->cloneNode());
             $para_element = $doc->createElement("p");
             $para_element->setAttribute('style', 'text-align:center');
             $new_element->appendChild($para_element);
-            $text_element = $doc->createElement("i", $alt_text);
-            $para_element->appendChild($text_element);
+
+            if ($alt_text && !$title_text){
+			          $text_element = $doc->createElement("i", $alt_text);
+		            $para_element->appendChild($text_element);
+            } elseif ($title_text && !$alt_text){
+			          $text_element = $doc->createElement("i", $title_text);
+		            $para_element->appendChild($text_element);
+          	} elseif ($alt_text == $title_text){
+			          $text_element = $doc->createElement("i", $alt_text);
+                $para_element->appendChild($text_element);
+		      	} elseif (strpos($alt_text, $title_text) !== false){
+			          $text_element = $doc->createElement("i", $alt_text);
+                $para_element->appendChild($text_element);
+		      	} elseif (strpos($title_text, $alt_text) !== false){
+			          $text_element = $doc->createElement("i", $title_text);
+          	} else {
+          		// there's both alt and title texts, they're both different, use both.
+			          $alt_element = $doc->createElement("i", $alt_text);
+		            $para_element->appendChild($alt_element);
+								$para_element->appendChild($doc->createElement("br"));
+			          $title_element = $doc->createElement("i", $title_text);
+		            $para_element->appendChild($title_element);
+          	}
+
             $img->parentNode->replaceChild($new_element, $img);
         }
 
