@@ -56,6 +56,11 @@ class gdorn_comics extends Plugin {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, '(//div[@id="comic"]//img)', $article);
         }
+        // The Trenches
+        elseif (strpos($article["link"], "drugsandwires.fail/dnwcomic/") !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, '(//div[@class="webcomic-image"]//img)', $article);
+        }
         // SatW
         elseif (strpos($article["link"], "satwcomic.com/") !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
@@ -70,6 +75,11 @@ class gdorn_comics extends Plugin {
         elseif (strpos($article["link"], "www.phdunknown.com/index.php?id=") !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, '(//div[@id="comicbody"]//img)', $article) . $article['content'];
+        }
+        // PhD Unknown
+        elseif (strpos($article["link"], "www.pilotside.us/comic/") !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, '(//div[@id="comic"]//img)', $article) . $article['content'];
         }
         // SBMC
         elseif (strpos($article["link"], "www.smbc-comics.com/comic/") !== FALSE) {
