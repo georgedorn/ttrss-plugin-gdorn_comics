@@ -141,9 +141,9 @@ class gdorn_comics extends Plugin {
             $article['content'] = $this->get_img_tags($xpath, "//div[@class='comicpage']//img[contains(@src, 'ENG_')]", $article);
         }
         // Three Panel Soul
-        elseif (strpos($article['link'], 'threepanelsoul.com/2') !== FALSE) {
+        elseif (strpos($article['link'], 'threepanelsoul.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
-            $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']/img", $article);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@id='cc-comicbody']/img", $article);
         }
         // Two Lumps
         elseif (strpos($article['link'], 'twolumps.net/d/') !== FALSE) {
