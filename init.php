@@ -56,7 +56,12 @@ class gdorn_comics extends Plugin {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, '(//div[@id="comic"]//img)', $article);
         }
-        // The Trenches
+        // The Better To Find You With (http://sorcery101.net/)
+        elseif (strpos($article["link"], "sorcery101.net/the-city-between/thebettertofindyouwith") !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, '(//div[@class="webcomic-image"]//img)', $article);
+        }
+        // Drugs and Wires
         elseif (strpos($article["link"], "drugsandwires.fail/dnwcomic/") !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, '(//div[@class="webcomic-image"]//img)', $article);
@@ -138,7 +143,7 @@ class gdorn_comics extends Plugin {
         // CTRL+ALT+DEL
         elseif (strpos($article['link'], 'cad-comic.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
-            $article['content'] = $this->get_img_tags($xpath, "//div[@class='comicpage']//img[contains(@src, 'ENG_')]", $article);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@class='comicpage']//img[contains(@src, 'Strip')]", $article);
         }
         // Three Panel Soul
         elseif (strpos($article['link'], 'threepanelsoul.com/comic/') !== FALSE) {
