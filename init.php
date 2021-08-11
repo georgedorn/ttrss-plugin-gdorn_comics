@@ -163,12 +163,17 @@ class gdorn_comics extends Plugin {
         // Something Positive
         elseif (strpos($article['link'], 'somethingpositive.net') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
-            $article['content'] = $this->get_img_tags($xpath, "//img[starts-with(@src, 'sp') and contains(@src, 'png')]", $article);
+            $article['content'] = $this->get_img_tags($xpath, "//img[contains(@src, 'sp') and contains(@src, 'uploads') and contains(@src, 'png')]", $article);
         }
         // Gunnerkrigg Court
         elseif (strpos($article['link'], 'gunnerkrigg.com/?p') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//img[starts-with(@src, '/comics/') and @class='comic_image']", $article);
+        }
+        // Jesus & Mo
+        elseif (strpos($article['link'], 'jesusandmo.net') !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']/noscript/img", $article);
         }
         // Timothy Winchester (People I Know)
         elseif (strpos($article['link'], 'www.timothywinchester.com/2') !== FALSE) {
@@ -181,8 +186,9 @@ class gdorn_comics extends Plugin {
         elseif (strpos($article['link'], 'awkwardzombie.com/index.php?comic') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
             $orig_content = strip_tags($article['content']);
-            $article['content'] = $this->get_img_tags($xpath, "//div[@id='comic']/img", $article);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@id='cc-comicbody']/img", $article);
             $article['content'] .= "<p>$orig_content</p>";
+            $article['content'] = str_replace('comicsthumbs', 'comics', $article['content']);
             //also append the blarg post because that's small, interesting,
             //and sometimes necessary for old fogeys like me to get what game it's about
             $entries = $xpath->query("//div[@id='blarg']/div[last()]");
@@ -345,12 +351,12 @@ class gdorn_comics extends Plugin {
         $imgs = $xpath->query('//img');
         foreach ($imgs as $img) {
             $alt_text = trim($img->getAttribute('alt'));
-            if ($alt_text == $article['title'] || strpos($article['title'], $alt_text) !== False) {
+            if (!$alt_text || $alt_text == $article['title'] || strpos($article['title'], $alt_text) !== False) {
                 $alt_text = false;
             }
             $article['debug'][] = "Got ($alt_text) from alt tag.";
             $title_text = trim($img->getAttribute('title'));
-            if ($title_text == $article['title'] || strpos($article['title'], $title_text) !== False) {
+            if (!$title_text || $title_text == $article['title'] || strpos($article['title'], $title_text) !== False) {
                 $title_text = false;
             }
             $article['debug'][] = "Got ($alt_text) from title tag.";
