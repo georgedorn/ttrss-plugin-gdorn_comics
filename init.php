@@ -91,7 +91,7 @@ class gdorn_comics extends Plugin {
             if (strpos($article["content"], "bonus panel!") !== FALSE) {
                 $xpath = $this->get_xpath_dealie($article['link']);
                 $aftercomic = $this->get_img_tags($xpath, '(//div[@id="aftercomic"]//img)', $article);
-                $article['content'] .= $aftercomic;
+                $article['content'] .= "<p>Bonus comic:<br>" . $aftercomic . "</p>";
             }
         }
         // Chainsawsuit
@@ -104,13 +104,13 @@ class gdorn_comics extends Plugin {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, '(//div[@id="comic"]//img)', $article);
         }
-        // Poorly Drawn Lines
-        elseif (strpos($article["link"], "poorlydrawnlines.com/comic/") !== FALSE ) {
-            $xpath = $this->get_xpath_dealie($article['link']);
-            $img_tag = $this->get_img_tags($xpath, '(//div[@class="post"]//img)', $article);
+        // Berkeley Mews
+//        elseif (strpos($article["link"], "berkeleymews.com/") !== FALSE ) {
+ //           $xpath = $this->get_xpath_dealie($article['link']);
+ //           $img_tag = $this->get_img_tags($xpath, '(//div[@id="comic"]//img)', $article);
 
-            $article['content'] =  $img_tag . $article['content'];
-        }
+//            $article['content'] =  $img_tag . $article['content'];
+//        }
         // Cyanide & Happiness
         elseif (strpos($article["link"], "explosm.net/comics") !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
@@ -143,7 +143,7 @@ class gdorn_comics extends Plugin {
         // CTRL+ALT+DEL
         elseif (strpos($article['link'], 'cad-comic.com/comic/') !== FALSE) {
             $xpath = $this->get_xpath_dealie($article['link']);
-            $article['content'] = $this->get_img_tags($xpath, "//div[@class='comicpage']//img[contains(@src, 'Strip')]", $article);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@class='comicpage']//img[contains(@src, 'uploads')]", $article);
         }
         // Three Panel Soul
         elseif (strpos($article['link'], 'threepanelsoul.com/comic/') !== FALSE) {
@@ -311,10 +311,21 @@ class gdorn_comics extends Plugin {
             $xpath = $this->get_xpath_dealie($article['link']);
             $article['content'] = $this->get_img_tags($xpath, "//figure[@class='photo-hires-item']//img", $article);
         }
+	// not a comic, just a borked RSS feed
+        elseif (strpos($article['link'], 'https://web3isgoinggreat.com/single/') !== FALSE) {
+            $xpath = $this->get_xpath_dealie($article['link']);
+            $article['content'] = $this->get_img_tags($xpath, "//div[@class='timeline-description']", $article);
+        }
         // Least I Could Do (wtf image size?)
         elseif (strpos($article['link'], 'leasticoulddo.com/comic') !== FALSE) {
 //            $xpath = $this->get_xpath_dealie($article['link']);
 //            $article['content'] = $this->get_img_tags($xpath, "//div[@class='comic-wrap']//img[@class='comic']", $article);
+            list($html, $content_type) = $this->get_content($link);
+            $article['debug'][] = $article['link'];
+            $article['debug'][] = $content_type;
+            $article['debug'][] = htmlspecialchars($html);
+            $xpath = $this->get_xpath_dealie($article['link']);
+           $article['content'] = $this->get_img_tags($xpath, "//div[@class='comic-wrap']", $article);
         }
         //Sites that provide images and just need alt tags textified.
         elseif (strpos($article['content'], 'www.asofterworld.com/index.php?id') !== FALSE) {
@@ -349,6 +360,10 @@ class gdorn_comics extends Plugin {
         }
         $xpath = new DOMXpath($doc);
         $imgs = $xpath->query('//img');
+        $article['debug'][] = "textifying...";
+        if (!$imgs){
+            $article['debug'][] = "Got no images?";
+        }
         foreach ($imgs as $img) {
             $alt_text = trim($img->getAttribute('alt'));
             if (!$alt_text || $alt_text == $article['title'] || strpos($article['title'], $alt_text) !== False) {
@@ -401,18 +416,24 @@ class gdorn_comics extends Plugin {
         return $article;
     }
 
-    function get_img_tags($xpath, $query, $article, $base_url=NULL) {
+    function get_img_tags($xpath, $query, &$article, $base_url=NULL) {
+        $article['debug'][] = "In get_img_tags()";
         $img_attributes_whitelist = array('src', 'alt', 'title');
         if (!$base_url){
             $base_url = $article['link'];
         }
         $entries = $xpath->query($query);
         $result_html = '';
+        if (!count($entries)) {
+            $article['debug'][] = "No images found with query: $query";
+        }
         foreach ($entries as $entry) {
             $orig_src = $entry->getAttribute('src');
+            $article['debug'][] = "Processing src:" . $orig_src;
             $new_src = $this->rel2abs($orig_src, $base_url);
             $article['debug'][] = "rel2abs turned ($orig_src) into ($new_src)";
             $entry->setAttribute('src', $new_src);
+            $entry->setAttribute('referrerpolicy', 'origin');
             $attributes = $entry->attributes;
             $to_remove = array();
             foreach($attributes as $attrib_name => $node){
@@ -479,6 +500,7 @@ class gdorn_comics extends Plugin {
         }
 
         /* absolute URL is ready! */
+        $scheme = "https";
         return $scheme . '://' . $abs;
     }
 
